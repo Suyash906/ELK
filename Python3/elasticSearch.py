@@ -50,4 +50,117 @@ print('Got %d hits:' %res['hits']['total'])
 res= es.search(index='megacorp',body={'query':{'match':{'first_name':'nitin'}}})
 print(res['hits']['hits'])
 
+# bool OPERATOR
 
+res= es.search(index='megacorp',body={
+        'query':{
+            'bool':{
+                'must':[{
+                        'match':{
+                            'first_name':'nitin'
+                        }
+                    }]
+            }
+        }
+    })
+
+print(res['hits']['hits'])
+
+# filter OPERATOR
+
+res= es.search(index='megacorp',body={
+        'query':{
+            'bool':{
+                'must':{
+                    'match':{
+                        'first_name':'nitin'
+                    }
+                },
+                "filter":{
+                    "range":{
+                        "age":{
+                            "gt":25
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+print(res['hits']['hits'])
+
+
+res= es.search(index='megacorp',body={
+        'query':{
+            'bool':{
+                'must':{
+                    'match':{
+                        'first_name':'nitin'
+                    }
+                },
+                "filter":{
+                    "range":{
+                        "age":{
+                            "gt":27
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+print(res['hits']['hits'])
+
+# FULL TEXT SEARCH
+
+e4={
+    "first_name":"asd",
+    "last_name":"pafdfd",
+    "age": 27,
+    "about": "Love to play football",
+    "interests": ['sports','music'],
+}
+res=es.index(index='megacorp',doc_type='employee',id=4,body=e4)
+print(res['result'])
+
+res = es.search(index='megacorp', doc_type='employee', body={
+    'query' : {
+        'match' :{
+            "about" : "play cricket"
+        }
+    }
+})
+
+for hit in res['hits']['hits']:
+    print(hit['_source']['about'])
+    print(hit['_score'])
+    print('*******************')
+
+
+# PHRASE SEARCH
+
+res = es.search(index='megacorp', doc_type='employee', body={
+    'query' : {
+        'match_phrase' : {
+            "about" : "play cricket"
+        }
+    }
+})
+
+for hit in res['hits']['hits']:
+    print(hit['_source']['about'])
+    print(hit['_score'])
+    print('*******************')
+
+
+# AGGREGATIONS
+
+# res= es.search(index='megacorp',doc_type='employee',body={
+#         "aggs": {
+#             "all_interests": {
+#             "terms": { "field": "interests" }
+#             }
+#         }
+#     })
+
+# print(res)
